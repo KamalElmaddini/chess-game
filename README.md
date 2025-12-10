@@ -2,7 +2,7 @@
 
 A fully functional, interactive chess game built with React.js and Vite. This project features a modern UI, move validation, and game state management.
 
-![Chess Game Board](./public/screenshot.png) *(Note: Add a screenshot of your game here)*
+![Chess Game Board](./public/screenshot.png)
 
 ## ✨ Features
 
