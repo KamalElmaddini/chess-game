@@ -1,16 +1,60 @@
-# React + Vite
+# ♟️ Modern React Chess Game
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A fully functional, interactive chess game built with React.js and Vite. This project features a modern UI, move validation, and game state management.
 
-Currently, two official plugins are available:
+![Chess Game Board](./public/screenshot.png) *(Note: Add a screenshot of your game here)*
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Features
 
-## React Compiler
+- **Complete Chess Logic**: Supports all standard chess moves including castling, en passant, and promotion.
+- **Move Validation**: Highlights legal moves for selected pieces.
+- **Captured Pieces**: Visual tracking of captured pieces for both sides.
+- **Game Status**: Automatic detection of Check, Checkmate, and Stalemate.
+- **History Tracking**: Undo/Redo functionality (if implemented) or move history.
+- **Responsive Design**: Playable on different screen sizes.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🛠️ Technologies Used
 
-## Expanding the ESLint configuration
+- **React 18**: For building the user interface.
+- **Vite**: For fast development and building.
+- **JavaScript (ES6+)**: Core game logic and engine.
+- **CSS3**: Styling the board and pieces.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js (v14 or higher)
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/KamalElmaddini/chess-game.git
+   ```
+
+2. Navigate to the project directory:
+   ```bash
+   cd chess-game
+   ```
+
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+4. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+5. Open [http://localhost:5173](http://localhost:5173) to play!
+
+## 🤝 Contributing
+
+Contributions are welcome! Feel free to open issues or submit pull requests.
+
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).
