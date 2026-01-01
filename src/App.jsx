@@ -1,14 +1,17 @@
 import React from 'react';
 import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
+import { MultiBackend } from 'react-dnd-multi-backend';
+import { HTML5toTouch } from 'rdndmb-html5-to-touch';
 import Game from './components/Game';
 import ErrorBoundary from './components/ErrorBoundary';
+import CustomDragLayer from './components/CustomDragLayer';
 import './App.css';
 
 function App() {
   return (
-    <DndProvider backend={HTML5Backend}>
+    <DndProvider backend={MultiBackend} options={HTML5toTouch}>
       <div className="app-container">
+        <CustomDragLayer />
         <div className="content-wrap">
           <ErrorBoundary>
             <Game />

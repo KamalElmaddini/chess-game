@@ -1,149 +1,13 @@
+import { minimax } from './ai/search';
+import { evaluateBoard } from './ai/evaluate';
 import { Chess } from 'chess.js';
 
-// Piece values for evaluation
-const PIECE_VALUES = {
-    p: 10,
-    n: 30,
-    b: 30,
-    r: 50,
-    q: 90,
-    k: 900
-};
-
-// Simplified Piece-Square Tables (PST) for positional evaluation (Master level)
-// Values are from white's perspective. For black, we mirror.
-const PST = {
-    p: [
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [50, 50, 50, 50, 50, 50, 50, 50],
-        [10, 10, 20, 30, 30, 20, 10, 10],
-        [5, 5, 10, 25, 25, 10, 5, 5],
-        [0, 0, 0, 20, 20, 0, 0, 0],
-        [5, -5, -10, 0, 0, -10, -5, 5],
-        [5, 10, 10, -20, -20, 10, 10, 5],
-        [0, 0, 0, 0, 0, 0, 0, 0]
-    ],
-    n: [
-        [-50, -40, -30, -30, -30, -30, -40, -50],
-        [-40, -20, 0, 0, 0, 0, -20, -40],
-        [-30, 0, 10, 15, 15, 10, 0, -30],
-        [-30, 5, 15, 20, 20, 15, 5, -30],
-        [-30, 0, 15, 20, 20, 15, 0, -30],
-        [-30, 5, 10, 15, 15, 10, 5, -30],
-        [-40, -20, 0, 5, 5, 0, -20, -40],
-        [-50, -40, -30, -30, -30, -30, -40, -50]
-    ],
-    // Simplified others for brevity, can expand for 'Master' feel
-    b: [
-        [-20, -10, -10, -10, -10, -10, -10, -20],
-        [-10, 0, 0, 0, 0, 0, 0, -10],
-        [-10, 0, 5, 10, 10, 5, 0, -10],
-        [-10, 5, 5, 10, 10, 5, 5, -10],
-        [-10, 0, 10, 10, 10, 10, 0, -10],
-        [-10, 10, 10, 10, 10, 10, 10, -10],
-        [-10, 5, 0, 0, 0, 0, 5, -10],
-        [-20, -10, -10, -10, -10, -10, -10, -20]
-    ],
-    r: [
-        [0, 0, 0, 0, 0, 0, 0, 0],
-        [5, 10, 10, 10, 10, 10, 10, 5],
-        [-5, 0, 0, 0, 0, 0, 0, -5],
-        [-5, 0, 0, 0, 0, 0, 0, -5],
-        [-5, 0, 0, 0, 0, 0, 0, -5],
-        [-5, 0, 0, 0, 0, 0, 0, -5],
-        [-5, 0, 0, 0, 0, 0, 0, -5],
-        [0, 0, 0, 5, 5, 0, 0, 0]
-    ],
-    q: [
-        [-20, -10, -10, -5, -5, -10, -10, -20],
-        [-10, 0, 0, 0, 0, 0, 0, -10],
-        [-10, 0, 5, 5, 5, 5, 0, -10],
-        [-5, 0, 5, 5, 5, 5, 0, -5],
-        [0, 0, 5, 5, 5, 5, 0, -5],
-        [-10, 5, 5, 5, 5, 5, 0, -10],
-        [-10, 0, 5, 0, 0, 0, 0, -10],
-        [-20, -10, -10, -5, -5, -10, -10, -20]
-    ],
-    k: [
-        [-30, -40, -40, -50, -50, -40, -40, -30],
-        [-30, -40, -40, -50, -50, -40, -40, -30],
-        [-30, -40, -40, -50, -50, -40, -40, -30],
-        [-30, -40, -40, -50, -50, -40, -40, -30],
-        [-20, -30, -30, -40, -40, -30, -30, -20],
-        [-10, -20, -20, -20, -20, -20, -20, -10],
-        [20, 20, 0, 0, 0, 0, 20, 20],
-        [20, 30, 10, 0, 0, 10, 30, 20]
-    ]
-};
-
-// Evaluate the board position
-const evaluateBoard = (game) => {
-    let totalEvaluation = 0;
-    const board = game.board();
-
-    for (let i = 0; i < 8; i++) {
-        for (let j = 0; j < 8; j++) {
-            const piece = board[i][j];
-            if (piece) {
-                const value = PIECE_VALUES[piece.type];
-
-                // Position evaluation (Master only mostly triggers this fully in logic if desired, but we include it for levels 4-5)
-                // Note: PST is for WHITE. For BLACK, we map mirrored.
-                let pstValue = 0;
-                if (PST[piece.type]) {
-                    if (piece.color === 'w') {
-                        pstValue = PST[piece.type][i][j];
-                    } else {
-                        pstValue = PST[piece.type][7 - i][j]; // Simple mirror for ranks
-                    }
-                }
-
-                if (piece.color === 'w') {
-                    totalEvaluation += (value + pstValue);
-                } else {
-                    totalEvaluation -= (value + pstValue);
-                }
-            }
-        }
-    }
-    return totalEvaluation;
-};
-
-// Minimax with Alpha-Beta Pruning
-const minimax = (game, depth, alpha, beta, isMaximizingPlayer) => {
-    if (depth === 0 || game.isGameOver()) {
-        return evaluateBoard(game);
-    }
-
-    const moves = game.moves();
-
-    if (isMaximizingPlayer) { // White
-        let maxEval = -Infinity;
-        for (const move of moves) {
-            game.move(move);
-            const evalValue = minimax(game, depth - 1, alpha, beta, false);
-            game.undo();
-            maxEval = Math.max(maxEval, evalValue);
-            alpha = Math.max(alpha, evalValue);
-            if (beta <= alpha) break;
-        }
-        return maxEval;
-    } else { // Black (Computer usually plays black in this setup)
-        let minEval = Infinity;
-        for (const move of moves) {
-            game.move(move);
-            const evalValue = minimax(game, depth - 1, alpha, beta, true);
-            game.undo();
-            minEval = Math.min(minEval, evalValue);
-            beta = Math.min(beta, evalValue);
-            if (beta <= alpha) break;
-        }
-        return minEval;
-    }
-};
-
 export const getBestMove = (game, difficultyLevel = 1) => { // 1 to 5
-    const possibleMoves = game.moves();
+    // CLONE THE GAME to avoid polluting the actual game state validation
+    // or rendering if exceptions occur.
+    const gameClone = new Chess(game.fen());
+
+    const possibleMoves = gameClone.moves();
     if (possibleMoves.length === 0) return null;
 
     // --- LEVEL 1: BEGINNER (Random) ---
@@ -151,54 +15,102 @@ export const getBestMove = (game, difficultyLevel = 1) => { // 1 to 5
         return possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
     }
 
-    // --- LEVEL 2: INTERMEDIATE (Aggressive Captures) ---
+    // --- LEVEL 2: EASY (Greedy Captures) ---
     if (difficultyLevel === 2) {
-        const movesDetail = game.moves({ verbose: true });
+        const movesDetail = gameClone.moves({ verbose: true });
+        // Prioritize captures
         const captures = movesDetail.filter(m => m.captured);
+
+        // Pick a random capture if available, else random move
         if (captures.length > 0) {
+            // Optional: Pick the 'best' capture (highest value victim)
+            // Simple greedy: just random capture for now, or sort by captured piece value?
+            // Let's stick to simple greedy: any capture is better than non-capture for Level 2 logic (aggressive)
             return captures[Math.floor(Math.random() * captures.length)];
         }
         return possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
     }
 
-    // --- LEVEL 3, 4, 5: MINIMAX ---
-    // Level 3: Depth 2 (Quick, looks 1 exchange ahead)
-    // Level 4: Depth 3 
-    // Level 5: Depth 3 (We can increase search or keep depth 3 with better Eval already applied via PST)
+    // --- LEVEL 3, 4, 5: MINIMAX with Iterative Deepening ---
+    const TIME_LIMIT = 2000; // 2 seconds
+    const endTime = Date.now() + TIME_LIMIT;
 
-    let depth = 2;
-    if (difficultyLevel >= 4) depth = 3;
+    // Target Depths
+    let maxDepth = 2;
+    if (difficultyLevel === 4) maxDepth = 3;
+    if (difficultyLevel >= 5) maxDepth = 4; // can go deeper if time permits with ID?
 
-    let bestMove = null;
-    let bestValue = Infinity; // Black wants to minimize score (White +, Black -)
-    // Assuming AI is BLACK
+    // Who is AI? (Assuming AI moved so it's their turn)
+    const isMaximizing = gameClone.turn() === 'w'; // White wants +score
 
-    // Check who is playing. If AI is White, it wants Max. If Black, Min.
-    // In this app, Player matches 'game.turn()'.
-    // If we call getBestMove, it's the AI's turn.
-    const isMaximizing = game.turn() === 'w';
-    bestValue = isMaximizing ? -Infinity : Infinity;
+    // Randomize top-level moves for variety
+    const shuffleArray = (array) => {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    };
+    const shuffledMoves = shuffleArray([...possibleMoves]);
 
-    // Randomize moves order to not be deterministic for equal moves
-    const shuffledMoves = possibleMoves.sort(() => Math.random() - 0.5);
+    let bestMove = shuffledMoves[0]; // Default fallback
+    // If we have some heuristic sort for top level, apply it here
 
-    for (const move of shuffledMoves) {
-        game.move(move);
-        // If AI is Maximizing (White), next is Black (Minimize) -> call with false
-        // If AI is Minimizing (Black), next is White (Maximize) -> call with true
-        const boardValue = minimax(game, depth - 1, -Infinity, Infinity, !isMaximizing);
-        game.undo();
+    // Iterative Deepening Loop
+    // For lower levels (3), maybe strictly maxDepth is enough?
+    // User requested "reduce time ... to 2s max". 
+    // ID allows us to stop ANYTIME.
 
-        if (isMaximizing) {
-            if (boardValue > bestValue) {
-                bestValue = boardValue;
-                bestMove = move;
+    // Start depth 1, go up to maxDepth.
+    // NOTE: For Level 5, we might assume d=4 is target, but if it's fast, should we go d=5?
+    // Let's cap at maxDepth for now to ensure strength doesn't accidentally become Grandmaster if user machine is fast,
+    // or keep it strict to requested design. 
+    // BUT user said "reduce time", implies it's too slow.
+
+    try {
+        for (let d = 1; d <= maxDepth; d++) {
+            let currentDownloadBestMove = null;
+            let currentDownloadBestValue = isMaximizing ? -Infinity : Infinity;
+
+            // Search at depth 'd'
+            // We reuse shuffledMoves order, but ideally we should sort them based on PREVIOUS iteration's scores (PV).
+            // For simplicity, we just search.
+
+            for (const move of shuffledMoves) {
+                gameClone.move(move);
+
+                // Check time before diving?
+                if (Date.now() > endTime) {
+                    gameClone.undo();
+                    throw new Error('Timeout');
+                }
+
+                const boardValue = minimax(gameClone, d - 1, -Infinity, Infinity, !isMaximizing, endTime);
+                gameClone.undo();
+
+                if (isMaximizing) {
+                    if (boardValue > currentDownloadBestValue) {
+                        currentDownloadBestValue = boardValue;
+                        currentDownloadBestMove = move;
+                    }
+                } else {
+                    if (boardValue < currentDownloadBestValue) {
+                        currentDownloadBestValue = boardValue;
+                        currentDownloadBestMove = move;
+                    }
+                }
             }
+
+            // Completed depth 'd' fully without timeout
+            if (currentDownloadBestMove) {
+                bestMove = currentDownloadBestMove;
+            }
+        }
+    } catch (err) {
+        if (err.message === 'Timeout') {
+            console.log("AI Time limit reached. Returning best move from last completed depth.");
         } else {
-            if (boardValue < bestValue) {
-                bestValue = boardValue;
-                bestMove = move;
-            }
+            throw err;
         }
     }
 

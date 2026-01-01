@@ -26,16 +26,20 @@ export function useChess() {
 
                 if (game.isGameOver()) {
                     setIsGameOver(true);
-                    if (game.isCheckmate()) setResult('Checkmate');
-                    else if (game.isDraw()) setResult('Draw');
-                    else if (game.isStalemate()) setResult('Stalemate');
+                    if (game.isCheckmate()) {
+                        // If it's White's turn and checkmate, White lost. Black wins.
+                        const winner = game.turn() === 'w' ? 'Black' : 'White';
+                        setResult(`Checkmate! ${winner} Wins! 🏆`);
+                    }
+                    else if (game.isDraw()) setResult('Draw! 🤝');
+                    else if (game.isStalemate()) setResult('Stalemate! ½-½');
                 }
-                return true;
+                return move;
             }
         } catch (e) {
-            return false;
+            return null;
         }
-        return false;
+        return null; // For fallback if no move
     }, [game]);
 
     // Reset the game
@@ -47,6 +51,19 @@ export function useChess() {
         setIsGameOver(false);
         setResult(null);
     }, []);
+
+    // Undo the last move
+    const undo = useCallback(() => {
+        const move = game.undo();
+        if (move) {
+            setFen(game.fen());
+            setTurn(game.turn());
+            setIsGameOver(false);
+            setResult(null);
+            return true;
+        }
+        return false;
+    }, [game]);
 
     // Get valid moves for a square
     const getValidMoves = useCallback((square) => {
@@ -60,6 +77,7 @@ export function useChess() {
         isGameOver,
         result,
         makeMove,
+        undo,
         resetGame,
         getValidMoves,
     };

@@ -24,7 +24,7 @@ function Square({ position, isBlack, piece, onMove, isValidMove, isLastMove, isC
     } else if (isValidMove) {
         overlayColor = 'rgba(0, 0, 0, 0.1)'; // Hint valid move (dot usually)
     } else if (isLastMove) {
-        overlayColor = 'rgba(255, 255, 0, 0.2)';
+        overlayColor = 'rgba(255, 255, 0, 0.5)'; // Stronger Light Yellow
     }
 
     return (

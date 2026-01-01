@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useDrag } from 'react-dnd';
+import { getEmptyImage } from 'react-dnd-html5-backend';
 import { PieceIcons } from './PieceIcons';
 
 function Piece({ type, color, position, onDragStart, onDragEnd }) {
-    const [{ isDragging }, drag] = useDrag(() => ({
+    const [{ isDragging }, drag, preview] = useDrag(() => ({
         type: 'piece',
         item: () => {
             if (onDragStart) onDragStart(position);
@@ -16,6 +17,10 @@ function Piece({ type, color, position, onDragStart, onDragEnd }) {
             isDragging: !!monitor.isDragging(),
         }),
     }), [position, type, color, onDragStart, onDragEnd]);
+
+    useEffect(() => {
+        preview(getEmptyImage(), { captureDraggingState: true });
+    }, [preview]);
 
     const Icon = PieceIcons[color][type];
 
