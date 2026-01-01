@@ -61,4 +61,4 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ---
 
-Made with ❤️ by Kamal Elmaddini
+© 2025 Kamal Elmaddini. All Rights Reserved.
