@@ -2,6 +2,8 @@
 
 A fully functional, interactive chess game built with React.js and Vite. This project features a modern UI, move validation, and game state management.
 
+[**View Live Demo**](https://chess-game-silk.vercel.app/)
+
 ![Chess Game Board](./public/screenshot.png)
 
 ## ✨ Features
